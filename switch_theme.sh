@@ -10,9 +10,6 @@ update_files() {
 	# Set the background
 	swww img $2 --transition-fps 60 --transition-type wipe --transition-duration 1
 
-	# Update the current theme file
-	echo $3 >./current_theme
-
 	# Restart waybar
 	pkill waybar
 	nohup waybar &
@@ -28,13 +25,14 @@ switch_theme() {
 	# Find the theme details from the config file
 	for i in $(seq 1 $NUM_THEMES); do
 		eval current_theme_name=\$THEME${i}_NAME
-		eval current_theme_wallpaper=\$THEME${i}_WALLPAPER
+		eval current_theme_wallpaper=\$WALLPAPER_NAME
 		eval current_theme_config_dir=\$THEME${i}_CONFIG_DIR
 
 		if [[ "$current_theme_name" == "$theme_name" ]]; then
-			theme_wallpaper=$current_theme_wallpaper
 			theme_config_dir=$current_theme_config_dir
+			theme_wallpaper="${theme_config_dir}/${current_theme_wallpaper}"
 			theme_num=$i
+			echo $theme_wallpaper
 			break
 		fi
 	done
@@ -59,7 +57,7 @@ switch_theme_num() {
 
 	# Find the theme details from the config file
 	eval current_theme_name=\$THEME${theme_num}_NAME
-	eval current_theme_wallpaper=\$THEME${theme_num}_WALLPAPER
+	eval current_theme_wallpaper=\$WALLPAPER_NAME
 	eval current_theme_config_dir=\$THEME${theme_num}_CONFIG_DIR
 
 	if [[ -z "$current_theme_name" || -z "$current_theme_wallpaper" || -z "$current_theme_config_dir" ]]; then
@@ -67,8 +65,9 @@ switch_theme_num() {
 		exit 1
 	fi
 
-	theme_wallpaper=$current_theme_wallpaper
 	theme_config_dir=$current_theme_config_dir
+	theme_wallpaper="${current_theme_config_dir}/${current_theme_wallpaper}"
+	echo $theme_wallpaper
 
 	# Update the current theme file with the next theme number
 	next_theme_num=$((theme_num % NUM_THEMES + 1))
@@ -103,6 +102,7 @@ case $1 in
 	;;
 *)
 	echo "Invalid option: $1"
+	echo "Usage: $0 [--cycle(-c)] | [--select(-s) <theme_name>]"
 	exit 1
 	;;
 esac
