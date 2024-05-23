@@ -7,5 +7,5 @@ The script is intended for **waybar** and **swww** for now.
 - Run `./switch-theme.sh <name_of_the_theme>`.
 
 
-The **current_theme** file is not supposed to be modified so don't touch it.
+The **current_theme_num** file is not supposed to be modified so don't touch it.
 
