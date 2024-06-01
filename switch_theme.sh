@@ -6,6 +6,8 @@ update_files() {
 	ln -sf $1/waybar/style.css ~/.config/waybar/style.css
 	ln -sf $1/kitty/kitty.conf ~/.config/kitty/kitty.conf
 	# ln -sf $1/wofi/style.css ~/.config/wofi/style.css
+	ln -sf $1/hypr/appearance.conf ~/.config/hypr/appearance.conf
+	ln -sf $1/hypr/rules.conf ~/.config/hypr/rules.conf
 
 	# Set the background
 	swww img $2 --transition-fps 60 --transition-type wipe --transition-duration 1
