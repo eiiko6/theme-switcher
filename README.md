@@ -8,8 +8,10 @@ I tried making it customizable through a config file.
 - Run `./switch-theme.sh -s <name_of_the_theme>` or `./switch-theme.sh -c` to cycle through your themes. You can also list your themes with `./switch-theme.sh -c`
 
 
+## Convenience
+
 You can add a function/alias tour your shell:
-- For bash, add the following to your **.bashrc**:
+# For bash, add the following to your **.bashrc**:
 ```
 themeswitcher() {
 	path=$(pwd)
@@ -20,7 +22,7 @@ themeswitcher() {
 
 alias theme='themeswitcher'
 ```
-- For fish add the following to your **config.fish**:
+# For fish add the following to your **config.fish**:
 ```
 function themeswitcher
     set path $(pwd)
