@@ -5,9 +5,18 @@ update_files() {
 	ln -sf $1/waybar/config.jsonc ~/.config/waybar/config.jsonc
 	ln -sf $1/waybar/style.css ~/.config/waybar/style.css
 	ln -sf $1/kitty/kitty.conf ~/.config/kitty/kitty.conf
-	# ln -sf $1/wofi/style.css ~/.config/wofi/style.css
+	ln -sf $1/wofi/style.css ~/.config/wofi/style.css
 	ln -sf $1/hypr/appearance.conf ~/.config/hypr/appearance.conf
-	ln -sf $1/hypr/rules.conf ~/.config/hypr/rules.conf
+	ln -sf $1/random-krabby/pokemon-list.conf ~/.config/random-krabby/pokemon-list.conf
+	ln -sf $1/nvim/lua/plugins/colorscheme.lua ~/.config/nvim/lua/plugins/colorscheme.lua
+
+	# Backup everything, this is kinda temporary
+	cp ~/.config/waybar/config.jsonc ./backups/waybar/config.jsonc
+	cp ~/.config/waybar/style.css ./backups/waybar/style.css
+	cp ~/.config/kitty/kitty.conf ./backups/kitty/kitty.conf
+	cp ~/.config/hypr/appearance.conf ./backups/hypr/appearance.conf
+	cp ~/.config/random-krabby/pokemon-list.conf ./backups/random-krabby/pokemon-list.conf
+	cp ~/.config/nvim/lua/plugins/colorscheme.lua ./backups/nvim/lua/plugins/colorscheme.lua
 
 	# Set the background
 	swww img $2 --transition-fps 60 --transition-type wipe --transition-duration 1
@@ -15,6 +24,7 @@ update_files() {
 	# Restart waybar
 	pkill waybar
 	nohup waybar &
+	echo "> Switched theme to $1"
 }
 
 # Function to switch themes
@@ -83,7 +93,7 @@ source ./themes.conf
 
 # Check if any parameter is provided
 if [[ $# -eq 0 ]]; then
-	echo "Usage: $0 [--cycle(-c)] | [--select(-s) <theme_name>]"
+	echo "Usage: $0 [--list(-l)] | [--cycle(-c)] | [--select(-s) <theme_name>]"
 	exit 1
 fi
 
@@ -102,9 +112,13 @@ case $1 in
 	fi
 	switch_theme "$2"
 	;;
+-l | --list)
+	# List all themes
+	ls ~/Themes/
+	;;
 *)
 	echo "Invalid option: $1"
-	echo "Usage: $0 [--cycle(-c)] | [--select(-s) <theme_name>]"
+	echo "Usage: $0 [--list(-l)] | [--cycle(-c)] | [--select(-s) <theme_name>]"
 	exit 1
 	;;
 esac
