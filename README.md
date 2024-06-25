@@ -11,7 +11,7 @@ I tried making it customizable through a config file.
 ## Convenience
 
 You can add a function/alias tour your shell:
-# For bash, add the following to your **.bashrc**:
+### For bash, add the following to your **.bashrc**:
 ```
 themeswitcher() {
 	path=$(pwd)
@@ -22,7 +22,7 @@ themeswitcher() {
 
 alias theme='themeswitcher'
 ```
-# For fish add the following to your **config.fish**:
+### For fish add the following to your **config.fish**:
 ```
 function themeswitcher
     set path $(pwd)
