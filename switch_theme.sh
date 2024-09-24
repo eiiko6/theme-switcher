@@ -56,8 +56,6 @@ switch_theme() {
   wal -i $theme_wallpaper -n -q -t --saturate 0.5 2>/dev/null
   # set the background opacity of kitty
   sed -i '3s/.*/background_opacity 0.6/' ~/.cache/wal/colors-kitty.conf
-  # set the wallpaper using swww
-  swww img $theme_wallpaper -t none
   # change the fastfetch logo
   magick -size 500x500 xc:none -draw "roundrectangle 0,0,500,500,32,32" ~/.config/fastfetch/mask.png 2>/dev/null
   magick $theme_wallpaper -resize 500x500^ -gravity center -extent 500x500 -alpha set ~/.config/fastfetch/mask.png -compose DstIn -composite /home/mxstoto/.config/fastfetch/fetch-logo.png 2>/dev/null
