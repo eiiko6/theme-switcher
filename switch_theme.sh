@@ -81,22 +81,26 @@ fi
 
 # Handle command-line parameters
 case $1 in
--s | --select)
-  # Select a specific theme by number
-  if [[ $# -ne 2 ]]; then
-    echo "Usage: $0 -s|--select <theme_name>"
+-l | --list)
+  if [[ $# -ne 1 ]]; then
+    echo "Invalid option: $1"
+    echo "Usage: $0 [--list(-l)] | [--select(-s) <theme_name>]"
     exit 1
   fi
-  switch_theme "$2"
-  echo "> Switched theme to $2"
-  ;;
--l | --list)
+
   # List all themes
-  ls ~/Themes/
+  echo Themes found in config:
+  ls -1 ~/Themes/
   ;;
-*)
-  echo "Invalid option: $1"
-  echo "Usage: $0 [--list(-l)] | [--select(-s) <theme_name>]"
-  exit 1
+-s | --select | *)
+  # Select a specific theme by number
+  if [[ $# -ne 1 ]]; then
+    echo "Invalid option: $1"
+    echo "Usage: $0 [--list(-l)] | [--select(-s) <theme_name>]"
+    exit 1
+  fi
+
+  switch_theme "$1"
+  echo "> Switched theme to $1"
   ;;
 esac
