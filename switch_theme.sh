@@ -59,15 +59,15 @@ switch_theme() {
 }
 
 # Create config files if they don't exist
-if [ -d "$HOME/.config/themeSwitcher" ]; then
+if [ -d "$HOME/.config/theme-switcher" ]; then
   echo ""
 else
-  echo "Creating themeSwitcher config files..."
-  cp -r ./config/themeSwitcher ~/.config/
+  echo "Creating theme-switcher config files..."
+  cp -r ./config/theme-switcher ~/.config/
 fi
 
 # Load the configuration file
-source ~/.config/themeSwitcher/themes.conf
+source ~/.config/theme-switcher/themes.conf
 
 # Check if any parameter is provided
 if [[ $# -eq 0 ]]; then
