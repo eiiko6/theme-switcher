@@ -4,8 +4,10 @@ I tried making it customizable through a config file.
 
 
 ## Usage
-- Copy your configuration files in **~/Themes/<name_of_the_theme>**, then add their path to **themes.conf**. The wallpaper should be in the root of the config's directory.
-- Run `./switch-theme.sh -s <name_of_the_theme>` or `./switch-theme.sh -c` to cycle through your themes. You can also list your themes with `./switch-theme.sh -c`
+- Copy your configuration files in **~/Themes/<name_of_the_theme>**. The wallpaper should be in the root of the config's directory.
+- Run `./switch_theme.sh <theme_name>` to enable a theme. You can also list your themes with `./switch-theme.sh -l`.
+
+> Warning: this **will** overwrite the files currently present in **.config**, replacing them with symlinks to the corresponding files in the selected theme.
 
 
 ## Convenience
@@ -33,4 +35,3 @@ end
 
 alias theme='themeswitcher'
 ```
-
