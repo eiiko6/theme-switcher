@@ -39,23 +39,17 @@ switch_theme() {
   local theme_wallpaper=""
   local theme_config_dir=""
 
-  # Find the theme details from the config file
-  for i in $(seq 1 $NUM_THEMES); do
-    eval current_theme_name=\$THEME${i}_NAME
-    eval current_theme_wallpaper=\$WALLPAPER_NAME
-    eval current_theme_config_dir=\$THEME${i}_CONFIG_DIR
+  # Automatically detect theme directories
+  local theme_dir="$HOME/.config/theme-switcher/themes/$theme_name"
 
-    if [[ "$current_theme_name" == "$theme_name" ]]; then
-      theme_config_dir=$current_theme_config_dir
-      theme_wallpaper="${theme_config_dir}/${current_theme_wallpaper}"
-      break
-    fi
-  done
-
-  if [[ -z "$theme_wallpaper" || -z "$theme_config_dir" ]]; then
-    echo "Theme '$theme_name' not found in configuration."
+  if [[ ! -d "$theme_dir" ]]; then
+    echo "Theme '$theme_name' not found in ~/.config/theme-switcher/themes."
     exit 1
   fi
+
+  # Look for the wallpaper and config details in the theme directory
+  theme_wallpaper="$theme_dir/wallpaper.png"
+  theme_config_dir="$theme_dir"
 
   update_files "$theme_config_dir"
   echo "=> Updated config files"
@@ -73,19 +67,27 @@ if [[ ! -d "$HOME/.config/theme-switcher" ]]; then
   cp -r ./config/theme-switcher/* "$HOME/.config/theme-switcher/"
 fi
 
-# Load the configuration file
+# Load themes.conf
 source "$HOME/.config/theme-switcher/themes.conf"
 
+# Create themes directory if it doesn't exist
+if [[ ! -d "$HOME/.config/theme-switcher/themes" ]]; then
+  echo "Creating themes directory..."
+  mkdir -p "$HOME/.config/theme-switcher/themes"
+fi
+
+# List themes if requested
 if [[ $# -eq 0 ]]; then
   echo "Usage: $0 [--list(-l)] | [--select(-s) <theme_name>]"
   exit 1
 fi
 
+# Handle parameters
 while [[ $# -gt 0 ]]; do
   case $1 in
   -l | --list)
-    echo "Themes found in config:"
-    ls -1 ~/Themes/
+    echo "Themes found in ~/.config/theme-switcher/themes:"
+    ls -1 ~/.config/theme-switcher/themes/
     ;;
   -q | --quiet)
     quiet=1
