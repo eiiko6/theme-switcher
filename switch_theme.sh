@@ -4,16 +4,12 @@
 update_files() {
   # Update symlinks
   for theme in $(find "$1" -type f -printf '%P\n'); do
-    echo "file found: $1/$theme -> $HOME/.config/$theme"
+    if [[ "$quiet" != 1 ]]; then
+      echo "file found: $1/$theme -> $HOME/.config/$theme"
+    fi
+
     ln -sf "$1/$theme" $HOME/.config/$theme
   done
-
-  # Set the background
-  swww img $2 --transition-fps 60 --transition-type wipe --transition-duration 1
-
-  # Restart waybar
-  pkill waybar
-  nohup waybar >/dev/null 2>&1 &
 }
 
 # Function to switch themes
@@ -42,11 +38,18 @@ switch_theme() {
     exit 1
   fi
 
-  update_files $theme_config_dir $theme_wallpaper $theme_name
+  update_files $theme_config_dir $theme_name
   echo "Updated config files"
 
   # generate the colors using wal
-  wal -i $theme_wallpaper -n -q -t --saturate 0.5 2>/dev/null
+  wal -i $theme_wallpaper -n -q -t --saturate 0.6 2>/dev/null
+
+  # Set the background
+  swww img $theme_wallpaper --transition-fps 60 --transition-type wipe --transition-duration 1
+
+  # Restart waybar
+  pkill waybar
+  nohup waybar >/dev/null 2>&1 &
 
   # set the background opacity of kitty
   sed -i '3s/.*/background_opacity 0.6/' ~/.cache/wal/colors-kitty.conf
@@ -75,28 +78,22 @@ if [[ $# -eq 0 ]]; then
   exit 1
 fi
 
-# Handle command-line parameters
-case $1 in
--l | --list)
-  if [[ $# -ne 1 ]]; then
-    echo "Invalid option: $1"
-    echo "Usage: $0 [--list(-l)] | [--select(-s) <theme_name>]"
-    exit 1
-  fi
+while [ $# -gt 0 ]; do
+  case $1 in
+  -l | --list)
+    # List all themes
+    echo Themes found in config:
+    ls -1 ~/Themes/
+    ;;
 
-  # List all themes
-  echo Themes found in config:
-  ls -1 ~/Themes/
-  ;;
--s | --select | *)
-  # Select a specific theme by number
-  if [[ $# -ne 1 ]]; then
-    echo "Invalid option: $1"
-    echo "Usage: $0 [--list(-l)] | [--select(-s) <theme_name>]"
-    exit 1
-  fi
+  -q | --quiet)
+    quiet=1
+    ;;
 
-  switch_theme "$1"
-  echo -e "\n> Switched theme to $1"
-  ;;
-esac
+  *)
+    switch_theme "$1"
+    ;;
+  esac
+
+  shift
+done
