@@ -3,7 +3,16 @@
 # Function to create/replace symlinks
 update_files() {
   local theme_dir=$1
-  for file in $(find "$theme_dir" -type f -printf '%P\n'); do
+  local ignored_files=("wallpaper.png" "script.sh")
+
+  find "$theme_dir" -type f -printf '%P\n' | while IFS= read -r file; do
+    # Check if the file is in the ignored list
+    for ignored in "${ignored_files[@]}"; do
+      if [[ "$file" == "$ignored" ]]; then
+        continue 2
+      fi
+    done
+
     ln -sf "$theme_dir/$file" "$HOME/.config/$file"
 
     if [[ $? -eq 0 && "$quiet" != 1 ]]; then
@@ -33,6 +42,15 @@ execute_global_commands() {
 
     eval "$expanded_command"
   done <<<"$GLOBAL_COMMANDS"
+}
+
+# Function to execute the theme's script
+execute_theme_script() {
+  local wallpaper="$1"
+  local theme_name="$2"
+  local theme_dir="$3"
+
+  source "$theme_dir/script.sh"
 }
 
 # Function to backup existing files
@@ -104,6 +122,11 @@ switch_theme() {
   if [[ "$quiet" != 1 ]]; then
     echo ""
   fi
+
+  execute_theme_script "$theme_wallpaper" "$theme_name" "$theme_dir" 2>/dev/null
+  if [[ "$quiet" != 1 ]]; then
+    echo ""
+  fi
   echo "=> Executed global commands."
 }
 
@@ -129,7 +152,7 @@ if [[ $# -eq 0 ]]; then
   echo "Usage: $0 [OPTIONS] <theme_name>"
   echo ""
   echo "Options:"
-  echo "  -l, --list       List all available themes in ~/.config/theme-switcher/themes"
+  echo "  -l, --list       (alone) List all available themes in ~/.config/theme-switcher/themes"
   echo "  -q, --quiet      Suppress output for symlink creation and command execution"
   echo "  -q, --backup     Backup existing config files"
   echo "  <theme_name>     Name of the theme to switch to"
