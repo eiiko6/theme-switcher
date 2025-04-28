@@ -11,10 +11,31 @@ Each theme can have a different script if specific actions are required.
 
 > Warning: this **will** overwrite the files currently present in **.config**, replacing them with symlinks to the corresponding files in the selected theme. Use the `-b` option to backup you files.
 
+## Themes
+
+Each theme has this structure:
+
+```txt
+theme-name/
+  ├── common/
+  │   ├── hypr/
+  │   ├── kitty/
+  │   ├── mako/
+  │   └── nvim/
+  ├── desktop/
+  │   └── waybar/
+  └── laptop/
+      └── waybar/
+```
+
+where desktop and laptop contain machine-specific files, that could differ between laptops and desktops.
+
 ## Configuration
 
 The script will read `~/.config/theme-switcher/themes.conf` to determine where the themes are located.
+
 You can add a global script executed at each theme switch in `~/.config/theme-switcher/script.sh`.
+
 Each theme can have a `script.sh` at its root, as well as a `wallpaper.png` if you want to use it in either the global script or the theme's script.
 
 You can add a function/alias tour your shell for convenience:
