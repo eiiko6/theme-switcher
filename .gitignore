@@ -1,2 +1,7 @@
 nohup.out
 next_theme_num
+
+
+# Added by cargo
+
+/target
