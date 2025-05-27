@@ -26,10 +26,11 @@ pub enum Action {
 
 #[derive(Args, Debug)]
 pub struct ProfileArgs {
-    #[arg(
-        value_parser = dir_exists
-    )]
-    pub path: String,
+    pub name: String,
+    // #[arg(
+    //     value_parser = dir_exists
+    // )]
+    // pub path: String,
 }
 
 fn dir_exists(path: &str) -> Result<String, String> {
