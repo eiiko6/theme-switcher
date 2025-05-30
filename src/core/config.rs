@@ -41,7 +41,8 @@ pub fn load_config(path: &str, verbose: bool) -> std::io::Result<Config> {
     let profiles_path = if let Some(path) = values.get("profiles_path") {
         path.to_string()
     } else {
-        String::default()
+        // Fallback to default
+        expand_tilde("~/.config/dotswitch/profiles/")
     };
 
     Ok(Config {

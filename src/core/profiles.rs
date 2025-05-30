@@ -8,21 +8,15 @@ use walkdir::DirEntry;
 
 use crate::core::config::Config;
 
-pub enum Host {
-    Laptop,
-    Desktop,
-    Unknown,
-}
-
 pub enum ProfileAction {
     Backup,
     Update,
-    List,
+    Preview,
 }
 
 pub fn proceed(
     profile_name: String,
-    host: Host,
+    modules: Vec<String>,
     verbose: bool,
     action: ProfileAction,
     config: Config,
@@ -34,55 +28,52 @@ pub fn proceed(
 
     match action {
         ProfileAction::Update => {
-            // Common
-            update_from_dir(
-                &base.join("common"),
-                config_dir.clone(),
-                ignored_files.clone(),
-                verbose,
-            )?;
+            for module in modules {
+                if verbose {
+                    println!("Updating for module {module}");
+                }
 
-            // Host-specific
-            let host_dir_name = match host {
-                Host::Laptop => "laptop",
-                Host::Desktop => "desktop",
-                Host::Unknown => return Ok(()), // skip if unknown
-            };
+                let module_path = base.join(module);
+                ensure_exists(module_path.clone())?;
 
-            update_from_dir(
-                &base.join(host_dir_name),
-                config_dir,
-                ignored_files,
-                verbose,
-            )?;
+                update_from_dir(
+                    &module_path,
+                    config_dir.clone(),
+                    ignored_files.clone(),
+                    verbose,
+                )?;
+            }
         }
 
         ProfileAction::Backup => {
-            // Common
-            backup_from_dir(
-                &base.join("common"),
-                config_dir.clone(),
-                ignored_files.clone(),
-                verbose,
-            )?;
+            for module in modules {
+                if verbose {
+                    println!("Backing up for module {module}");
+                }
 
-            // Host-specific
-            let host_dir_name = match host {
-                Host::Laptop => "laptop",
-                Host::Desktop => "desktop",
-                Host::Unknown => return Ok(()), // skip if unknown
-            };
+                let module_path = base.join(module);
+                ensure_exists(module_path.clone())?;
 
-            backup_from_dir(
-                &base.join(host_dir_name),
-                config_dir,
-                ignored_files,
-                verbose,
-            )?;
+                backup_from_dir(
+                    &module_path,
+                    config_dir.clone(),
+                    ignored_files.clone(),
+                    verbose,
+                )?;
+            }
         }
 
-        ProfileAction::List => {
-            todo!();
+        ProfileAction::Preview => {
+            for module in modules {
+                if verbose {
+                    println!("Previewing for module {module}");
+                }
+
+                let module_path = base.join(module);
+                ensure_exists(module_path.clone())?;
+
+                preview_from_dir(&module_path, config_dir.clone(), ignored_files.clone())?;
+            }
         }
     }
 
@@ -140,6 +131,10 @@ fn backup_from_dir(
         return Ok(());
     }
 
+    if verbose {
+        println!("Backing up profile in {}", backup_dir.display());
+    }
+
     for (_, path) in get_entries(dir, ignored_files) {
         let target_path = config_dir.join(&path);
         if let Some(parent) = target_path.parent() {
@@ -165,6 +160,32 @@ fn backup_from_dir(
     Ok(())
 }
 
+fn preview_from_dir(
+    dir: &Path,
+    config_dir: PathBuf,
+    ignored_files: HashSet<&str>,
+) -> io::Result<()> {
+    if !dir.exists() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            format!("Directory {:?} does not exist", dir),
+        ));
+    }
+
+    for (entry, path) in get_entries(dir, ignored_files) {
+        let target_path = config_dir.join(&path);
+
+        if target_path.exists() {
+            println!(
+                "Created symlink: {} -> {}",
+                entry.path().display(),
+                target_path.display()
+            );
+        }
+    }
+    Ok(())
+}
+
 fn get_entries(dir: &Path, ignored_files: HashSet<&str>) -> Vec<(DirEntry, PathBuf)> {
     let walker = walkdir::WalkDir::new(dir)
         .into_iter()
@@ -182,4 +203,18 @@ fn get_entries(dir: &Path, ignored_files: HashSet<&str>) -> Vec<(DirEntry, PathB
             }
         })
         .collect()
+}
+
+fn ensure_exists(module_path: PathBuf) -> io::Result<()> {
+    if !module_path.exists() {
+        Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!(
+                "module directory '{}' does not exist",
+                module_path.to_string_lossy()
+            ),
+        ))
+    } else {
+        Ok(())
+    }
 }
