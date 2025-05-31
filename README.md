@@ -1,41 +1,49 @@
 ## Introduction
 
-**dotswitch** (dotfiles switcher) basically creates symlinks from a theme directory for your config files.
-I tried making it customizable through a config file.
-Each theme can have a different script if specific actions are required.
+**dotswitch** (dotfiles switcher) basically creates symlinks from a profile directory for your config files.
+I tried making it customizable.
+Each profile can have a different script if specific actions are required.
 
 ## Usage
 
-- Copy your configuration files in a directory in the path specified in the config. The wallpaper should be in the root of the config's directory.
-- Run `dotswitch switch <theme_name>` to enable a theme. You can also list your themes with `dotswitch list`.
+- Place your configuration files in a directory in the path specified in the config.
+- Run `dotswitch switch <theme_name> <profile_name>` to enable a profile. You can also list your profiles with `dotswitch list`.
 
-> Warning: this **will** overwrite the files currently present in **.config**, replacing them with symlinks to the corresponding files in the selected theme. Use the `-b` option to backup you files.
+> Warning: this **will** overwrite the files currently present in **.config**, replacing them with symlinks to the corresponding files in the selected theme. Use the `backup` option to backup you files, and/or the `preview` option to preview changes.
 
-## Themes
+## Configuration
 
-Each theme has this structure:
+The script will read `~/.config/dotswitch/dotswitch.conf`.
+
+Specify the location of your themes (required):
+> `profiles_dir = ~/some-path/`
+
+You can add multiple global scripts executed at each theme switch with:
+> `global_script = ~/some-path/some-script.sh`
+> `global_script = ~/some-path/some-other-script.sh`
+
+Each profile can have scripts at its root:
+> `per_profile_script = script.sh`
+> `per_profile_script = some-other-script.sh`
+> (relative to the profile's location)
+
+-> See my [dotfiles](https://github.com/eiiko6/dotfiles) for an example on how to integrate this tool.
+
+## Modules
+
+Each profile has this structure:
 
 ```txt
 theme-name/
-  ├── common/
+  ├── module1/
   │   ├── hypr/
   │   ├── kitty/
   │   ├── mako/
   │   └── nvim/
-  ├── desktop/
+  ├── module2/
   │   └── waybar/
-  └── laptop/
+  └── module3/
       └── waybar/
 ```
 
-where desktop and laptop contain machine-specific files, that could differ between laptops and desktops.
-
-## Configuration
-
-The script will read `~/.config/dotswitch/dotswitch.conf` to determine where the themes are located.
-
-You can add a global script executed at each theme switch in `~/.config/dotswitch/script.sh`.
-
-Each theme can have a `script.sh` at its root, as well as a `wallpaper.png` if you want to use it in either the global script or the theme's script.
-
-> See my [dotfiles](https://github.com/eiiko6/dotfiles) for an example on how to integrate this tool.
+where the modules (with whatever names) can for example contain machine-specific files, that could differ between laptop and desktop.

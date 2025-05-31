@@ -1,4 +1,4 @@
-use core::{ProfileAction, load_config, proceed};
+use core::{ProfileAction, expand_tilde, load_config, proceed};
 use std::path::Path;
 use walkdir::WalkDir;
 
@@ -45,9 +45,9 @@ fn main() {
                 profile_args.modules,
                 verbose,
                 ProfileAction::Update,
-                config,
+                config.clone(),
             ) {
-                eprintln!("Failed to execute action: {e}");
+                eprintln!("Failed to switch: {e}");
             }
         }
 
@@ -59,7 +59,7 @@ fn main() {
                 ProfileAction::Backup,
                 config,
             ) {
-                eprintln!("Failed to execute action: {e}");
+                eprintln!("Failed to backup: {e}");
             }
         }
 
@@ -69,9 +69,9 @@ fn main() {
                 profile_args.modules,
                 verbose,
                 ProfileAction::Preview,
-                config,
+                config.clone(),
             ) {
-                eprintln!("Failed to execute action: {e}");
+                eprintln!("Failed to preview: {e}");
             }
         }
     }

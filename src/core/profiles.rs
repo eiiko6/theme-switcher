@@ -1,4 +1,5 @@
 use chrono::Local;
+use std::process::Command;
 use std::{
     collections::HashSet,
     env, fs, io,
@@ -7,6 +8,7 @@ use std::{
 use walkdir::DirEntry;
 
 use crate::core::config::Config;
+use crate::expand_tilde;
 
 pub enum ProfileAction {
     Backup,
@@ -43,6 +45,35 @@ pub fn proceed(
                     verbose,
                 )?;
             }
+
+            for script in config.global_scripts {
+                match execute_script(script, &base.to_string_lossy()) {
+                    Ok(s) => {
+                        if verbose {
+                            println!("{s}");
+                        }
+                    }
+                    Err(e) => {
+                        eprintln!("Failed to execute global script: {e}");
+                        continue;
+                    }
+                }
+            }
+
+            for script in config.per_profile_scripts {
+                let script = format!("{}/{script}", base.to_string_lossy());
+                match execute_script(script, &base.to_string_lossy()) {
+                    Ok(s) => {
+                        if verbose {
+                            println!("{s}");
+                        }
+                    }
+                    Err(e) => {
+                        eprintln!("Failed to execute profile script: {e}");
+                        continue;
+                    }
+                }
+            }
         }
 
         ProfileAction::Backup => {
@@ -73,6 +104,15 @@ pub fn proceed(
                 ensure_exists(module_path.clone())?;
 
                 preview_from_dir(&module_path, config_dir.clone(), ignored_files.clone())?;
+            }
+
+            for script in config.global_scripts {
+                println!("Would run global executable: {script}");
+            }
+
+            for script in config.per_profile_scripts {
+                let script = format!("{}/{script}", base.to_string_lossy());
+                println!("Would run profile executable: {script}");
             }
         }
     }
@@ -177,7 +217,7 @@ fn preview_from_dir(
 
         if target_path.exists() {
             println!(
-                "Created symlink: {} -> {}",
+                "Would create symlink: {} -> {}",
                 entry.path().display(),
                 target_path.display()
             );
@@ -216,5 +256,30 @@ fn ensure_exists(module_path: PathBuf) -> io::Result<()> {
         ))
     } else {
         Ok(())
+    }
+}
+
+fn execute_script(script: String, profile_path: &str) -> Result<String, String> {
+    let script = match expand_tilde(script.as_str()) {
+        Ok(s) => s,
+        Err(e) => {
+            return Err(e.to_string());
+        }
+    };
+
+    let status = match Command::new(&script)
+        .env("profile_path", profile_path)
+        .status()
+    {
+        Ok(s) => s,
+        Err(e) => {
+            return Err(e.to_string());
+        }
+    };
+
+    if status.success() {
+        Ok(format!("Executed script {}", &script))
+    } else {
+        Err(format!("script exited with status: {}", status))
     }
 }

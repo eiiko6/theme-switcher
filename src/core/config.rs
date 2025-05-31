@@ -1,20 +1,23 @@
-use dirs::home_dir;
+use crate::expand_tilde;
 use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 
+#[derive(Debug, Clone)]
 pub struct Config {
     pub profiles_path: String,
+    pub global_scripts: Vec<String>,
+    pub per_profile_scripts: Vec<String>,
 }
 
 pub fn load_config(path: &str, verbose: bool) -> std::io::Result<Config> {
-    let path = expand_tilde(path);
+    let path = expand_tilde(path)?;
 
     ensure_config_file_exists(path.as_str(), verbose);
 
-    let mut values = HashMap::new();
+    let mut values: HashMap<String, Vec<String>> = HashMap::new();
 
     if verbose {
         println!("Loading config: {}", path);
@@ -35,18 +38,44 @@ pub fn load_config(path: &str, verbose: bool) -> std::io::Result<Config> {
             None => continue,
         };
 
-        values.insert(key.to_string(), value.to_string());
+        values
+            .entry(key.to_string())
+            .or_default()
+            .push(value.to_string());
     }
 
-    let profiles_path = if let Some(path) = values.get("profiles_path") {
+    let profiles_path = if let Some(path) = values.get("profiles_path").and_then(|v| v.first()) {
         path.to_string()
     } else {
         // Fallback to default
-        expand_tilde("~/.config/dotswitch/profiles/")
+        String::from("~/.config/dotswitch/profiles/")
+    };
+    let profiles_path = match expand_tilde(profiles_path.as_str()) {
+        Ok(path) => path,
+        Err(e) => {
+            eprintln!("Could not determine profiles path: {e}");
+            panic!();
+        }
     };
 
+    let mut global_scripts = Vec::new();
+    if let Some(paths) = values.get("global_script") {
+        for path in paths {
+            global_scripts.push(path.to_string());
+        }
+    }
+
+    let mut per_profile_scripts = Vec::new();
+    if let Some(paths) = values.get("per_profile_script") {
+        for path in paths {
+            per_profile_scripts.push(path.to_string());
+        }
+    }
+
     Ok(Config {
-        profiles_path: expand_tilde(profiles_path.as_str()),
+        profiles_path,
+        global_scripts,
+        per_profile_scripts,
     })
 }
 
@@ -63,13 +92,5 @@ fn ensure_config_file_exists(path: &str, verbose: bool) {
         }
 
         fs::File::create(path_obj).expect("Failed to create config file");
-    }
-}
-
-fn expand_tilde(path: &str) -> String {
-    if let Some(home) = home_dir() {
-        path.replace("~/", &format!("{}/", home.display()))
-    } else {
-        panic!("could not determine home directory");
     }
 }
