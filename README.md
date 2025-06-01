@@ -7,18 +7,18 @@ Each profile can have a different script if specific actions are required.
 ## Usage
 
 - Place your configuration files in a directory in the path specified in the config.
-- Run `dotswitch switch <theme_name> <profile_name>` to enable a profile. You can also list your profiles with `dotswitch list`.
+- Run `dotswitch switch <profile_name> <profile_name>` to enable a profile. You can also list your profiles with `dotswitch list`.
 
-> Warning: this **will** overwrite the files currently present in **.config**, replacing them with symlinks to the corresponding files in the selected theme. Use the `backup` option to backup you files, and/or the `preview` option to preview changes.
+> Warning: this **will** overwrite the files currently present in **.config**, replacing them with symlinks to the corresponding files in the selected profile. Use the `backup` option to backup you files, and/or the `preview` option to preview changes.
 
 ## Configuration
 
 The script will read `~/.config/dotswitch/dotswitch.conf`.
 
-Specify the location of your themes (required):
+Specify the location of your profiles (required):
 > `profiles_dir = ~/some-path/`
 
-You can add multiple global scripts executed at each theme switch with:
+You can add multiple global scripts executed at each profile switch with:
 > `global_script = ~/some-path/some-script.sh`
 > `global_script = ~/some-path/some-other-script.sh`
 
@@ -34,7 +34,7 @@ Each profile can have scripts at its root:
 Each profile has this structure:
 
 ```txt
-theme-name/
+profile-name/
   ├── module1/
   │   ├── hypr/
   │   ├── kitty/
